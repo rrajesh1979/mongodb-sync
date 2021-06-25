@@ -1,5 +1,6 @@
 package com.learn;
 
+import com.github.javafaker.Faker;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
 import lombok.extern.slf4j.Slf4j;
@@ -28,25 +29,30 @@ public class BookDAL {
         }
     }
 
-    public List<Document> getBooks() {
-        List<Document> books = new ArrayList<>();
+    public Document getBooks() {
+        Document book = null;
+        Document filter = new Document("bookId", "1000");
         try {
-            Document book = booksCollection
-                    .find()
+            book = booksCollection
+                    .find(filter)
                     .first();
-            books.add(book);
         } catch (Exception e) {
             log.error("Error getting books!");
         }
-        return books;
+        return book;
     }
 
     public Document addBook(String bookId, String bookName, String authorName) {
+        Faker faker = new Faker();
         ObjectId id = new ObjectId();
         Document bookDoc = new Document("_id", id)
                 .append("bookId", bookId)
                 .append("bookName", bookName)
                 .append("authorName", authorName);
+
+//        for(int i=0;i<100;i++) {
+//            bookDoc.append(String.valueOf(i), faker.funnyName().toString());
+//        }
 
         try {
             booksCollection.insertOne(bookDoc);

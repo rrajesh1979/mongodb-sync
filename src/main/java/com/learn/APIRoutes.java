@@ -37,10 +37,10 @@ public class APIRoutes {
         BookDAL bookDAL;
         bookDAL = new BookDAL(mongoClient);
 
-        List<Document> books = bookDAL.getBooks();
+        Document book = bookDAL.getBooks();
 
         response.status(200);
-        return new Gson().toJson(books);
+        return new Gson().toJson(book);
     }
 
     public String addBook(Request request, Response response) {
