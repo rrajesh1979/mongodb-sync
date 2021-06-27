@@ -19,6 +19,7 @@ import java.util.List;
 public class APIRoutes {
 
     private final MongoClient mongoClient;
+    private final Document bookDocFields;
 
     private final JsonWriterSettings plainJSON = JsonWriterSettings.builder().outputMode(JsonMode.RELAXED)
             .binaryConverter((value, writer) -> writer.writeString(Base64.getEncoder().encodeToString(value.getData())))
@@ -29,13 +30,14 @@ public class APIRoutes {
             .objectIdConverter((value, writer) -> writer.writeString(value.toHexString()))
             .symbolConverter((value, writer) -> writer.writeString(value)).build();
 
-    public APIRoutes(MongoClient mongoClient) {
+    public APIRoutes(MongoClient mongoClient, Document bookDocFields) {
         this.mongoClient = mongoClient;
+        this.bookDocFields = bookDocFields;
     }
 
     public String getBooks(Request request, Response response) {
         BookDAL bookDAL;
-        bookDAL = new BookDAL(mongoClient);
+        bookDAL = new BookDAL(mongoClient, bookDocFields);
 
         Document book = bookDAL.getBooks();
 
@@ -45,7 +47,7 @@ public class APIRoutes {
 
     public String addBook(Request request, Response response) {
         BookDAL bookDAL;
-        bookDAL = new BookDAL(mongoClient);
+        bookDAL = new BookDAL(mongoClient, bookDocFields);
 
         String bookId = request.splat()[0];
         String bookName = request.splat()[1];

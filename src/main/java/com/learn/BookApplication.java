@@ -1,10 +1,13 @@
 package com.learn;
 
+import com.github.javafaker.Faker;
 import com.mongodb.*;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.connection.ConnectionPoolSettings;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.Document;
+import org.bson.types.ObjectId;
 
 import java.util.concurrent.TimeUnit;
 
@@ -44,7 +47,7 @@ public class BookApplication {
             return;
         }
 
-        APIRoutes apiRoutes = new APIRoutes(mongoClient);
+        APIRoutes apiRoutes = new APIRoutes(mongoClient, createBookDocFields());
 
         //curl -X GET http://localhost:5000/books
         get("/books", apiRoutes::getBooks);
@@ -53,5 +56,18 @@ public class BookApplication {
         post("/book/*/*/*", apiRoutes::addBook);
 
         after((req, res) -> res.type("application/json"));
+    }
+
+    public static Document createBookDocFields() {
+        Faker faker = new Faker();
+
+        Document bookDoc = new Document("bookId", "1000")
+                .append("bookName", "Harry Potter")
+                .append("authorName", "JK Rowling");
+
+        for(int i=0;i<100;i++) {
+            bookDoc.append(String.valueOf(i), faker.funnyName().toString());
+        }
+        return bookDoc;
     }
 }

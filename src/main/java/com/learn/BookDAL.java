@@ -7,9 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 
-import java.awt.print.Book;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public class BookDAL {
@@ -18,9 +16,11 @@ public class BookDAL {
 
     MongoClient mongoClient;
     MongoCollection<Document> booksCollection;
+    Document bookDoc;
 
-    public BookDAL(MongoClient mongoClient) {
+    public BookDAL(MongoClient mongoClient, Document bookDocFields) {
         this.mongoClient = mongoClient;
+        this.bookDoc = bookDocFields;
 
         try {
             booksCollection = this.mongoClient.getDatabase(BOOKS_DB).getCollection(BOOKS_COLLECTION);
@@ -43,23 +43,18 @@ public class BookDAL {
     }
 
     public Document addBook(String bookId, String bookName, String authorName) {
-        Faker faker = new Faker();
+        Document newBook = new Document();
         ObjectId id = new ObjectId();
-        Document bookDoc = new Document("_id", id)
+        newBook.append("_id", id)
                 .append("bookId", bookId)
-                .append("bookName", bookName)
-                .append("authorName", authorName);
-
-//        for(int i=0;i<100;i++) {
-//            bookDoc.append(String.valueOf(i), faker.funnyName().toString());
-//        }
-
+                .append("bookDetails", bookDoc);
         try {
-            booksCollection.insertOne(bookDoc);
+            booksCollection.insertOne(newBook);
+//            TimeUnit.MILLISECONDS.sleep(100);
         } catch (Exception e) {
-            log.error("Error inserting book :: {}", bookDoc);
+//            Thread.currentThread().interrupt();
+            log.error("Error inserting book :: {}", newBook);
         }
-
-        return bookDoc;
+        return newBook;
     }
 }
